@@ -1,59 +1,47 @@
 
 import * as d3 from "d3";
 
-const svgContainer = d3.select("body").append("svg")
-                        .attr("width",200)
-                        .attr("height",200);
 
-const Group = svgContainer
-          .selectAll(".wind-barbs")
-          .data([1])
-          .enter()
-          .append("g")
-          .attr("class", "wind-barb");
-
-    function createCircleData(paddinLeft = 0, circleData){
-  		return circleData.map(c => {
-        	return {
-              "cx": c.cx + paddinLeft || 0,
-              "cy": c.cy || 0,
-              "r": c.r || 0,
-              "fill": c.fill || "none",
-              "stroke": c.stroke || "#555555",
-              "strokeWidth": c.strokeWidth || 4
-            }
-        });
-    }
+//
+//     function createCircleData(paddinLeft = 0, circleData){
+//   		return circleData.map(c => {
+//         	return {
+//               "cx": c.cx + paddinLeft || 0,
+//               "cy": c.cy || 0,
+//               "r": c.r || 0,
+//               "fill": c.fill || "none",
+//               "stroke": c.stroke || "#555555",
+//               "strokeWidth": c.strokeWidth || 4
+//             }
+//         });
+//     }
 
 
 
-    const circleData = createCircleData(100, [
-    	{ "cx": 0, "cy": 145, "r": 8, "fill": "#555555" },
-    	{ "cx": 0, "cy": 145, "r": 16, "fill": "none" }
-    ]);
+//     const circleData = createCircleData(100, [
+//     	{ "cx": 0, "cy": 145, "r": 8, "fill": "#555555" },
+//     	{ "cx": 0, "cy": 145, "r": 16, "fill": "none" }
+//     ]);
+//
+//
+// const circleGroup = svgContainer.append("g");
+//
+// //Add circles to the circleGroup
+// const circles = circleGroup.selectAll("circle")
+// 							.data(circleData)
+// 							.enter()
+// 							.append("circle");
+//
+// const circleAttributes = circles
+// 							.attr("cx", d => d.cx)
+// 							.attr("cy", d => d.cy)
+// 							.attr("r", d => d.r)
+// 							.attr("stroke", d => d.stroke)
+// 							.style("stroke-width", d => d.strokeWidth)
+// 							.style("fill", d => d.fill);
 
 
-const circleGroup = svgContainer.append("g");
-
-//Add circles to the circleGroup
-const circles = circleGroup.selectAll("circle")
-							.data(circleData)
-							.enter()
-							.append("circle");
-
-const circleAttributes = circles
-							.attr("cx", d => d.cx)
-							.attr("cy", d => d.cy)
-							.attr("r", d => d.r)
-							.attr("stroke", d => d.stroke)
-							.style("stroke-width", d => d.strokeWidth)
-							.style("fill", d => d.fill);
-
-  addLinesToSvg(Group);
-  // addPoligonToSvg(svgContainer)
-
-
-function addLinesToSvg(container, prop = {
+export default function addLinesToSvg(container, prop = {
        baseLenght: 100,
        paddingLeft: 100,
        paddingTop: 5,
@@ -63,7 +51,6 @@ function addLinesToSvg(container, prop = {
        numberFlags: 0,
        hasHalfFlippers: true
    }){
-
       const data = [];
       const base = createline({ "x1": prop.paddingLeft, "x2": prop.paddingLeft,
                                	"y1": prop.baseLenght + prop.width + prop.paddingTop,
