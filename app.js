@@ -2,7 +2,8 @@ import * as d3 from "d3";
 
 const metar = {
     barbs: barbs,
-    stations: getStations
+    stations: getStations,
+    renderWindBarbs: renderWindBarbs
 };
 
 export { metar }
@@ -46,10 +47,16 @@ function renderLines(wspd = 25){
     const numberFlippers = Math.floor(wspd/10);
     const hasHalfFlippers = wspd % 10 >= 5 ? true : false;
 
-    return addLinesToSvg({numberFlippers, hasHalfFlippers, numberFlags });
+    const paddingLeft = 20;
+    return addLinesToSvg({paddingLeft, numberFlippers, hasHalfFlippers, numberFlags });
 }
 
 function renderWindBarbs(container) {
+
+    const circleData = createCircleData(20, 10, [
+    	{ "cx": 0, "cy": 145, "r": 16, "fill": "none" }
+    ]);
+    addCircles(container, circleData);
 
     container.selectAll("line")
         .data(d => renderLines(d.properties.wspd) )
@@ -76,10 +83,13 @@ function addLinesToSvg(newProp){
     }
 
     const data = [];
-    const windBarbBase = createline({ "x1": prop.paddingLeft, "x2": prop.paddingLeft,
-                               	"y1": prop.baseLenght + prop.width + prop.paddingTop,
-                                "y2": prop.width + prop.paddingTop });
-    data.push(windBarbBase);
+    if (prop.numberFlippers > 0 || prop.hasHalfFlippers) {
+        const windBarbBase = createline({ "x1": prop.paddingLeft, "x2": prop.paddingLeft,
+                                   	"y1": prop.baseLenght + prop.width + prop.paddingTop,
+                                    "y2": prop.width + prop.paddingTop });
+        data.push(windBarbBase);
+    }
+
 
     let fliPadding = prop.paddingTop;
 
@@ -112,10 +122,40 @@ function createline(l){
       }
 }
 
+function createCircleData(paddinLeft = 0, paddingTop = 0, circleData){
+  	return circleData.map(c => {
+    	return {
+          "cx": c.cx + paddinLeft || 0,
+          "cy": c.cy + paddingTop || 0,
+          "r": c.r || 0,
+          "fill": c.fill || "none",
+          "stroke": c.stroke || "#555555",
+          "strokeWidth": c.strokeWidth || 4
+        }
+    });
+}
+
+
+//Add circles to the circleGroup
+function addCircles(svgContainer, circleData){
+
+    svgContainer.append("g")
+            .selectAll("circle")
+            .data(circleData)
+            .enter()
+            .append("circle")
+// const circleAttributes = circles
+            .attr("cx", d => d.cx)
+            .attr("cy", d => d.cy)
+            .attr("r", d => d.r)
+            .attr("stroke", d => d.stroke)
+            .style("stroke-width", d => d.strokeWidth)
+            .style("fill", d => d.fill);
+}
+
 
 function addPoligonToSvg(container){
 	const flagData = [{ points: "100,5,135,5,100,45", stroke: "#555555", strokeWidth: 4}];
-
   	container.selectAll("polygon")
       .data(flagData)
       .enter()
@@ -124,45 +164,4 @@ function addPoligonToSvg(container){
       .attr("stroke", d => d.stroke)
       .style("fill", d => d.stroke)
       .style("stroke-width", d => d.strokeWidth);
-
 }
-
-
-
-//
-//     function createCircleData(paddinLeft = 0, circleData){
-//   		return circleData.map(c => {
-//         	return {
-//               "cx": c.cx + paddinLeft || 0,
-//               "cy": c.cy || 0,
-//               "r": c.r || 0,
-//               "fill": c.fill || "none",
-//               "stroke": c.stroke || "#555555",
-//               "strokeWidth": c.strokeWidth || 4
-//             }
-//         });
-//     }
-
-
-
-//     const circleData = createCircleData(100, [
-//     	{ "cx": 0, "cy": 145, "r": 8, "fill": "#555555" },
-//     	{ "cx": 0, "cy": 145, "r": 16, "fill": "none" }
-//     ]);
-//
-//
-// const circleGroup = svgContainer.append("g");
-//
-// //Add circles to the circleGroup
-// const circles = circleGroup.selectAll("circle")
-// 							.data(circleData)
-// 							.enter()
-// 							.append("circle");
-//
-// const circleAttributes = circles
-// 							.attr("cx", d => d.cx)
-// 							.attr("cy", d => d.cy)
-// 							.attr("r", d => d.r)
-// 							.attr("stroke", d => d.stroke)
-// 							.style("stroke-width", d => d.strokeWidth)
-// 							.style("fill", d => d.fill);

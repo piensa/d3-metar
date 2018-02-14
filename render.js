@@ -17,15 +17,4 @@ const barbGroup = svgContainer.append("g").attr("class", "wind-barbs");
 const geojsonUrl = "https://geojson-ldxdcwirxw.now.sh/metar-api-sample-json-10945.json";
 metar.stations(geojsonUrl, 3).then(stations => {
     metar.barbs(stations, barbGroup, projection);
-    // ready(svgContainer, path, stations, projection);
-})
-
-function ready(svg, path, data, projection) {
-
-    svg.selectAll(".shadows")
-        .data(data)
-        .enter().append("path")
-        .attr("class", "point")
-        .attr("d", path)
-        .attr("fill", "pink");
-}
+});
