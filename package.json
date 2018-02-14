@@ -1,6 +1,6 @@
 {
   "name": "d3-metar",
-  "version": "0.0.13",
+  "version": "0.0.14",
   "main": "dist/bundle.js",
   "unpkg": "dist/publish.js",
   "scripts": {

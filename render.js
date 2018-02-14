@@ -16,5 +16,12 @@ const barbGroup = svgContainer.append("g").attr("class", "wind-barbs");
 
 const geojsonUrl = "https://geojson-ldxdcwirxw.now.sh/metar-api-sample-json-10945.json";
 metar.stations(geojsonUrl, 3).then(stations => {
-    metar.barbs(stations, barbGroup, projection);
+    stations.forEach(s => {
+        if(s.properties.wspd > 26){
+            s.properties.wspd = 65;
+        }
+    });
+    metar.barbs(stations, barbGroup, projection, 3);
 });
+
+// metar.test(barbGroup);
