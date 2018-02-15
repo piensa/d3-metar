@@ -14,7 +14,7 @@ function test(barbGroup){
        "properties":{
           "id":"KABR", "site":"Aberdeen Rgnl", "prior":"3",
           "obsTime":"2018-02-05T21:53:00Z", "temp":-13.3,
-          "dewp":-20, "wspd":45, "wgst":24, "wdir":-90,
+          "dewp":-20, "wspd":85, "wgst":24, "wdir":-90,
           "ceil":31, "cover": undefined,
           "visib":10, "fltcat":"VFR",
           "altim":1023.8, "slp":1026.9
@@ -88,23 +88,22 @@ function renderCloud(container, prop){
         http://ww2010.atmos.uiuc.edu/(Gh)/guides/maps/sfcobs/wnd.rxml
         http://ww2010.atmos.uiuc.edu/(Gh)/guides/maps/sfcobs/cldcvr.rxml
         https://www.aviationweather.gov/taf/help?page=plot */
-
     const r = 30;
-    const text = 0.85 * r;
     const cloudData = [{
-        "d": `M${prop.paddingLeft},155 v-${r} a${r},${r} 0 0,1 ${r},${r} z`
+        "d": `M${prop.paddingLeft},155 m0,${-r} l0,${r*2}`
     },{
-        "d": `M${prop.paddingLeft},155 v-${r} a${r},${r} 0 0,1 0,${r*2} z`
+        "d": `M${prop.paddingLeft},155 m0,${-r} l0,${r*2}
+              M${prop.paddingLeft},155 v${-r} a${r},${r} 0 0,1 ${r},${r} z`
     },{
-        "d": `M${prop.paddingLeft},155 h-${r} a${r},${r} 0 1,0 ${r},${-r} z`
+        "d": `M${prop.paddingLeft},155 h${-r} a${r},${r} 0 1,0 ${r},${-r} z`
     },{
-        "d": `M${prop.paddingLeft},155 m-${r},0 a${r},${r} 0 1,0 ${2*r},0 a${r},${r} 0 1,0 ${-r*2},0`
+        "d": `M${prop.paddingLeft},155 m${-r},0 a${r},${r} 0 1,0 ${2*r},0 a${r},${r} 0 1,0 ${-r*2},0`
     },{
         "d": `M${prop.paddingLeft - r},155 l${r*2},0 M${prop.paddingLeft},${155 + r} l0,${-2*r}`,
         "trans": `rotate(-45 ${prop.paddingLeft} 155)`
     },{
-        "d": `M${prop.paddingLeft},155 m${-text/2},${-text/2} l0,${text} m0,${-text}
-                l${text/2},${text*0.8} m0,0 l${text/2},${-text*0.8} m0,0 l0,${text}`
+        "d": `M${prop.paddingLeft},155 m${-r/2},${-r/2} l0,${r} m0,${-r}
+                l${r/2},${r*0.8} m0,0 l${r/2},${-r*0.8} m0,0 l0,${r}`
     }];
 
     container.append("g")
