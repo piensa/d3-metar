@@ -14,8 +14,8 @@ function test(barbGroup){
        "properties":{
           "id":"KABR", "site":"Aberdeen Rgnl", "prior":"3",
           "obsTime":"2018-02-05T21:53:00Z", "temp":-13.3,
-          "dewp":-20, "wspd":65, "wgst":24, "wdir":0,
-          "ceil":31, "cover":"OVC",
+          "dewp":-20, "wspd":45, "wgst":24, "wdir":-90,
+          "ceil":31, "cover": undefined,
           "visib":10, "fltcat":"VFR",
           "altim":1023.8, "slp":1026.9
        },
@@ -27,12 +27,23 @@ function test(barbGroup){
           ]
        }
     }];
+
     const Group = barbGroup
         .selectAll("wind-barbs")
-        .data(stations).enter().append("g")
-        .attr("class", "barb");
+        .data(stations).enter();
 
-    renderWindBarbs(Group, { paddingLeft: 35, paddingTop: 5 });
+
+    const gre = Group.append("g")
+        .attr("class", d =>  `barb wspd-${d.properties.wspd}`)
+        .attr("transform", d => {
+            return `rotate(${90 + d.properties.wdir} 35 155)`;
+        });
+
+    const cloud = Group.append("g")
+        .attr("class", d =>  `cloud cover-${d.properties.cover}`);
+
+    renderWindBarbs(gre, { paddingLeft: 35, paddingTop: 5 });
+    renderCloud(cloud, { paddingLeft: 35, paddingTop: 5 });
 }
 
 function getStations(geojsonUrl) {
@@ -53,14 +64,75 @@ function barbs(stations, barbGroup, projection, priority = 2, path) {
     const Group = barbGroup
         .selectAll("wind-barbs")
         .data(stations.filter(f => f.properties.prior <= priority)).enter()
-        .append("g")
+
+
+    const tailGroup = Group.append("g")
         .attr("class", d =>  `barb wspd-${d.properties.wspd}`)
         .attr("transform", d => {
             return `translate(${projection(d.geometry.coordinates)})
-                scale(0.2) rotate(${d.properties.wdir})`;
+                scale(0.2) rotate(${90 + d.properties.wdir} 35 155)`;
         });
 
-    renderWindBarbs(Group, { paddingLeft: 35, paddingTop: 5 });
+    const cloudGroup = Group.append("g")
+        .attr("class", d =>  `cloud cover-${d.properties.cover}`)
+        .attr("transform", d => {
+            return `translate(${projection(d.geometry.coordinates)}) scale(0.2)`;
+        });
+
+    renderWindBarbs(tailGroup, { paddingLeft: 35, paddingTop: 5 });
+    renderCloud(cloudGroup, { paddingLeft: 35, paddingTop: 5 })
+}
+
+function renderCloud(container, prop){
+    /* Sources:
+        http://ww2010.atmos.uiuc.edu/(Gh)/guides/maps/sfcobs/wnd.rxml
+        http://ww2010.atmos.uiuc.edu/(Gh)/guides/maps/sfcobs/cldcvr.rxml
+        https://www.aviationweather.gov/taf/help?page=plot */
+
+    const r = 30;
+    const text = 0.85 * r;
+    const cloudData = [{
+        "d": `M${prop.paddingLeft},155 v-${r} a${r},${r} 0 0,1 ${r},${r} z`
+    },{
+        "d": `M${prop.paddingLeft},155 v-${r} a${r},${r} 0 0,1 0,${r*2} z`
+    },{
+        "d": `M${prop.paddingLeft},155 h-${r} a${r},${r} 0 1,0 ${r},${-r} z`
+    },{
+        "d": `M${prop.paddingLeft},155 m-${r},0 a${r},${r} 0 1,0 ${2*r},0 a${r},${r} 0 1,0 ${-r*2},0`
+    },{
+        "d": `M${prop.paddingLeft - r},155 l${r*2},0 M${prop.paddingLeft},${155 + r} l0,${-2*r}`,
+        "trans": `rotate(-45 ${prop.paddingLeft} 155)`
+    },{
+        "d": `M${prop.paddingLeft},155 m${-text/2},${-text/2} l0,${text} m0,${-text}
+                l${text/2},${text*0.8} m0,0 l${text/2},${-text*0.8} m0,0 l0,${text}`
+    }];
+
+    container.append("g")
+            .selectAll("path")
+            .data(d => {
+                console.log(d.properties.cover);
+                return cloudreportToSvg(d.properties.cover, cloudData)
+            })
+            .enter()
+            .append("path")
+            .attr("d", d => d.d)
+            .attr("transform", d => d.trans)
+            .attr("stroke", "#555555")
+            .style("stroke-width", 6)
+            .style("fill", "#555555")
+            .style("stroke-linecap", "round");
+
+    function cloudreportToSvg(cover, cloudData) {
+        const index = cover === "SKC" || cover === "CLR" ||
+                      cover === "NSC" || cover === "CAVOK" ? null :
+                      cover === "FEW" ? 0 :
+                      cover === "SCT" ? 1 :
+                      cover === "BKN" ? 2 :
+                      cover === "OVC" ? 3 :
+                      cover === "VV" || cover === "OVX" ? 4 : 5;
+
+        return index === null ? [] : [ cloudData[index] ];
+    }
 }
 
 function renderWindBarbs(container, prop) {
@@ -148,7 +220,7 @@ function addLinesToSvg(container, prop) {
                   "y1": l.y1 || 0,
                   "y2": l.y2 || 0,
                   "stroke": l.stroke || "#555555",
-                  "strokeWidth": l.strokeWidth || 5
+                  "strokeWidth": l.strokeWidth || 6
           }
     }
 }
@@ -163,7 +235,7 @@ function addPoligonToSvg(container, prop){
 	const flagData = [{
         points: points,
         stroke: "#555555",
-        strokeWidth: 5
+        strokeWidth: 6
     }];
   	container.selectAll("polygon")
       .data(flagData)
