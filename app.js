@@ -14,8 +14,8 @@ function test(barbGroup){
        "properties":{
           "id":"KABR", "site":"Aberdeen Rgnl", "prior":"3",
           "obsTime":"2018-02-05T21:53:00Z", "temp":-13.3,
-          "dewp":-20, "wspd":85, "wgst":24, "wdir":-90,
-          "ceil":31, "cover": undefined,
+          "dewp":-20, "wspd":65, "wgst":24, "wdir":-90,
+          "ceil":31, "cover": "SCT",
           "visib":10, "fltcat":"VFR",
           "altim":1023.8, "slp":1026.9
        },
@@ -108,10 +108,7 @@ function renderCloud(container, prop){
 
     container.append("g")
             .selectAll("path")
-            .data(d => {
-                console.log(d.properties.cover);
-                return cloudreportToSvg(d.properties.cover, cloudData)
-            })
+            .data(d => cloudreportToSvg(d.properties.cover, cloudData))
             .enter()
             .append("path")
             .attr("d", d => d.d)
