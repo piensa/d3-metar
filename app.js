@@ -60,7 +60,8 @@ function barbs(stations, barbGroup, projection, priority = 2, path) {
         .attr("class", d =>  `barb wspd-${d.properties.wspd}`)
         .attr("transform", d => {
             return `translate(${projection(d.geometry.coordinates)}) scale(0.2)`;
-        });
+        })
+        .append("g").attr("class", "wrapper");
 
     renderWindBarbs(Group, { paddingLeft: 5, paddingTop: 35 });
 
