@@ -14,7 +14,7 @@ function test(barbGroup){
        "properties":{
           "id":"KABR", "site":"Aberdeen Rgnl", "prior":"3",
           "obsTime":"2018-02-05T21:53:00Z", "temp":-13.3,
-          "dewp":-20, "wspd":65, "wgst":24, "wdir":-90,
+          "dewp":-20, "wspd":65, "wgst":24, "wdir":-60,
           "ceil":31, "cover": "SCT",
           "visib":10, "fltcat":"VFR",
           "altim":1023.8, "slp":1026.9
@@ -30,20 +30,13 @@ function test(barbGroup){
 
     const Group = barbGroup
         .selectAll("wind-barbs")
-        .data(stations).enter();
+        .data(stations)
+        .enter()
+        .append("g")
+        .attr("class", d =>  `barb wspd-${d.properties.wspd}`);
 
-
-    const gre = Group.append("g")
-        .attr("class", d =>  `barb wspd-${d.properties.wspd}`)
-        .attr("transform", d => {
-            return `rotate(${90 + d.properties.wdir} 35 155)`;
-        });
-
-    const cloud = Group.append("g")
-        .attr("class", d =>  `cloud cover-${d.properties.cover}`);
-
-    renderWindBarbs(gre, { paddingLeft: 35, paddingTop: 5 });
-    renderCloud(cloud, { paddingLeft: 35, paddingTop: 5 });
+    renderWindBarbs(Group, { paddingLeft: 35, paddingTop: 5 });
+    renderCloud(Group, { paddingLeft: 35, paddingTop: 5 });
 }
 
 function getStations(geojsonUrl) {
@@ -55,7 +48,7 @@ function getStations(geojsonUrl) {
             }
 
             const stations = data.features.filter(f => f.properties.wdir);
-            resolve(stations); //
+            resolve(stations);
         });
     });
 }
@@ -64,23 +57,14 @@ function barbs(stations, barbGroup, projection, priority = 2, path) {
     const Group = barbGroup
         .selectAll("wind-barbs")
         .data(stations.filter(f => f.properties.prior <= priority)).enter()
-
-
-    const tailGroup = Group.append("g")
+        .append("g")
         .attr("class", d =>  `barb wspd-${d.properties.wspd}`)
-        .attr("transform", d => {
-            return `translate(${projection(d.geometry.coordinates)})
-                scale(0.2) rotate(${90 + d.properties.wdir} 35 155)`;
-        });
-
-    const cloudGroup = Group.append("g")
-        .attr("class", d =>  `cloud cover-${d.properties.cover}`)
         .attr("transform", d => {
             return `translate(${projection(d.geometry.coordinates)}) scale(0.2)`;
         });
 
-    renderWindBarbs(tailGroup, { paddingLeft: 35, paddingTop: 5 });
-    renderCloud(cloudGroup, { paddingLeft: 35, paddingTop: 5 })
+    renderWindBarbs(Group, { paddingLeft: 35, paddingTop: 5 });
+
 }
 
 function renderCloud(container, prop){
@@ -138,11 +122,13 @@ function renderWindBarbs(container, prop) {
     addPoligonToSvg(container, prop);
 
     addLinesToSvg(container, prop);
+
+    renderCloud(container, prop);
 }
 
 function addLinesToSvg(container, prop) {
     container.selectAll("line")
-        .data(d => renderLines(d.properties.wspd, prop) )
+        .data(d => renderLines(d.properties.wspd, d.properties.wdir,  prop))
         .enter()
         .append("line")
         .attr("x1", d => d.x1)
@@ -151,9 +137,17 @@ function addLinesToSvg(container, prop) {
         .attr("y2", d => d.y2)
         .attr("stroke", d => d.stroke)
         .style("stroke-width", d => d.strokeWidth)
-        .style("stroke-linecap", "round");
+        .style("stroke-linecap", "round")
+        .attr("transform", d => {
+            return `rotate(${90 + d.wdir} 35 155)`;
+        });
 
-    function renderLines(wspd = 0, prop){
+    function renderLines(wspd = 0, wdir = 0, prop){
+        // Make sure that the maximun value is 95
+        if (wspd > 99) {
+            wspd = 95;
+        }
+
         const numberFlags = Math.floor(wspd/50);
         if(numberFlags >= 1){
             wspd = wspd - numberFlags * 50;
@@ -163,7 +157,8 @@ function addLinesToSvg(container, prop) {
         const hasHalfFlippers = wspd % 10 >= 5 ? true : false;
         const paddingLeft = prop.paddingLeft;
         const paddingTop = prop.paddingTop;
-        return addLinesToDataArray({paddingLeft, paddingTop, numberFlippers, hasHalfFlippers, numberFlags });
+        return addLinesToDataArray({paddingLeft, paddingTop, numberFlippers,
+            hasHalfFlippers, numberFlags, wdir });
     }
 
     function addLinesToDataArray(newProp){
@@ -171,7 +166,8 @@ function addLinesToSvg(container, prop) {
                 baseLenght: 80,    paddingTop: 0,
                 paddingLeft: 5,     width: 40,
                 numberFlippers: 3,  flipperPadding: 15,
-                numberFlags: 1,     hasHalfFlippers: true
+                numberFlags: 1,     hasHalfFlippers: true,
+                wdir: 0
         };
         if(newProp){
             Object.assign(prop, prop, newProp);
@@ -207,17 +203,19 @@ function addLinesToSvg(container, prop) {
         }
 
         return data;
-    }
 
-    function createline(l){
-          return {
-                  "x1": l.x1 || 0,
-                  "x2": l.x2 || 0,
-                  "y1": l.y1 || 0,
-                  "y2": l.y2 || 0,
-                  "stroke": l.stroke || "#555555",
-                  "strokeWidth": l.strokeWidth || 6
-          }
+        function createline(l){
+              return {
+                      "x1": l.x1 || 0,
+                      "x2": l.x2 || 0,
+                      "y1": l.y1 || 0,
+                      "y2": l.y2 || 0,
+                      "stroke": l.stroke || "#555555",
+                      "strokeWidth": l.strokeWidth || 6,
+                      "wdir": prop.wdir
+
+              }
+        }
     }
 }
 
@@ -228,20 +226,26 @@ function addPoligonToSvg(container, prop){
     const points = `${prop.paddingLeft},${prop.paddingTop}, ${prop.paddingLeft + width},
         ${prop.paddingTop}, ${prop.paddingLeft}, ${prop.paddingTop + width}`;
 
-	const flagData = [{
-        points: points,
-        stroke: "#555555",
-        strokeWidth: 6
-    }];
   	container.selectAll("polygon")
-      .data(flagData)
-      .data(d => d.properties.wspd >= 50 ? flagData : [] )
+      .data(d => makePolygon(points, d.properties) )
       .enter()
       .append("polygon")
       .attr("points", d => d.points)
       .attr("stroke", d => d.stroke)
       .style("fill", d => d.stroke)
-      .style("stroke-width", d => d.strokeWidth);
+      .style("stroke-width", d => d.strokeWidth)
+      .attr("transform", d => {
+          return `rotate(${90 + d.wdir} 35 155)`;
+      });
+
+      function makePolygon(points, properties, color = "#555555") {
+          return properties.wspd >= 50 ? [{
+              points: points,
+              stroke: color,
+              strokeWidth: 6,
+              wdir: properties.wdir || 0
+          }] : [];
+      }
 }
 
 //Add circles
