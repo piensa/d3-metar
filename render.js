@@ -10,7 +10,8 @@ const height = 500;
 
 const svgContainer = d3.select("body").append("svg")
                         .attr("width", width)
-                        .attr("height", height);
+                        .attr("height", height)
+                        .style("margin", "30px");
 
 const barbGroup = svgContainer.append("g").attr("class", "wind-barbs");
 

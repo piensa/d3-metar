@@ -14,7 +14,7 @@ function test(barbGroup){
        "properties":{
           "id":"KABR", "site":"Aberdeen Rgnl", "prior":"3",
           "obsTime":"2018-02-05T21:53:00Z", "temp":-13.3,
-          "dewp":-20, "wspd":95, "wgst":24, "wdir": 100,
+          "dewp":-20, "wspd":95, "wgst":24, "wdir": 80,
           "ceil":31, "cover": "SCT",
           "visib":10, "fltcat":"VFR",
           "altim":1023.8, "slp":1026.9
@@ -35,7 +35,7 @@ function test(barbGroup){
         .append("g")
         .attr("class", d =>  `barb wspd-${d.properties.wspd}`)
 
-    renderWindBarbs(Group, { paddingLeft: 5, paddingTop: 35 });
+    renderWindBarbs(Group, { paddingLeft: 0, paddingTop: 0 });
 }
 
 function getStations(geojsonUrl) {
@@ -63,7 +63,7 @@ function barbs(stations, barbGroup, projection, priority = 2, path) {
         })
         .append("g").attr("class", "wrapper");
 
-    renderWindBarbs(Group, { paddingLeft: 5, paddingTop: 35 });
+    renderWindBarbs(Group, { paddingLeft: 0, paddingTop: 0 });
 
 }
 
@@ -72,7 +72,7 @@ function renderWindBarbs(container, prop) {
     addCircles(container, prop);
 
     addPoligonToSvg(container, prop);
-
+    //
     addLinesToSvg(container, prop);
 
     renderCloud(container, prop);
@@ -84,22 +84,22 @@ function renderCloud(container, prop){
         http://ww2010.atmos.uiuc.edu/(Gh)/guides/maps/sfcobs/cldcvr.rxml
         https://www.aviationweather.gov/taf/help?page=plot */
     const r = 30;
-    const y = 35;
-    const margin = prop.paddingTop;
+    const y = prop.paddingTop;
+    const x = prop.paddingLeft;
     const cloudData = [{
-        "d": `M${margin},${y} m0,${-r} l0,${r*2}`
+        "d": `M${x},${y} m0,${-r} l0,${r*2}`
     },{
-        "d": `M${margin},${y} m0,${-r} l0,${r*2}
-              M${margin},${y} v${-r} a${r},${r} 0 0,1 ${r},${r} z`
+        "d": `M${x},${y} m0,${-r} l0,${r*2}
+              M${x},${y} v${-r} a${r},${r} 0 0,1 ${r},${r} z`
     },{
-        "d": `M${margin},${y} h${-r} a${r},${r} 0 1,0 ${r},${-r} z`
+        "d": `M${x},${y} h${-r} a${r},${r} 0 1,0 ${r},${-r} z`
     },{
-        "d": `M${margin},${y} m${-r},0 a${r},${r} 0 1,0 ${2*r},0 a${r},${r} 0 1,0 ${-r*2},0`
+        "d": `M${x},${y} m${-r},0 a${r},${r} 0 1,0 ${2*r},0 a${r},${r} 0 1,0 ${-r*2},0`
     },{
-        "d": `M${margin - r},${y} l${r*2},0 M${margin},${y + r} l0,${-2*r}`,
-        "trans": `rotate(-45 ${margin} ${y})`
+        "d": `M${x - r},${y} l${r*2},0 M${x},${y + r} l0,${-2*r}`,
+        "trans": `rotate(-45 ${x} ${y})`
     },{
-        "d": `M${margin},${y} m${-r/2},${-r/2} l0,${r} m0,${-r}
+        "d": `M${x},${y} m${-r/2},${-r/2} l0,${r} m0,${-r}
                 l${r/2},${r*0.8} m0,0 l${r/2},${-r*0.8} m0,0 l0,${r}`
     }];
 
@@ -140,7 +140,7 @@ function addLinesToSvg(container, prop) {
         .style("stroke-width", d => d.strokeWidth)
         .style("stroke-linecap", "round")
         .attr("transform", d => {
-            return `rotate(${d.wdir} 35 35)`;
+            return `rotate(${d.wdir} 0 0)`;
         });
 
     function renderLines(wspd = 0, wdir = 0, prop){
@@ -164,11 +164,11 @@ function addLinesToSvg(container, prop) {
 
     function addLinesToDataArray(newProp){
         const prop = {
-                baseLenght: 70,    paddingTop: 0,
+                baseLenght: 75,    paddingTop: 0,
                 paddingLeft: 5,     width: 40,
                 numberFlippers: 3,  flipperPadding: 15,
                 numberFlags: 1,     hasHalfFlippers: true,
-                wdir: 0
+                wdir: 0,            radio: 30
         };
         if(newProp){
             Object.assign(prop, prop, newProp);
@@ -177,8 +177,8 @@ function addLinesToSvg(container, prop) {
         const data = [];
         if (prop.numberFlippers > 0 || prop.hasHalfFlippers || prop.numberFlags > 0) {
             const windBarbBase = createline({
-                "x1": prop.paddingTop*2 - 5,
-                "x2": prop.paddingTop*2 + prop.baseLenght + 5,
+                "x1": prop.radio,
+                "x2": prop.radio + prop.baseLenght,
                 "y1": prop.paddingTop,
                 "y2": prop.paddingTop
             });
@@ -186,7 +186,7 @@ function addLinesToSvg(container, prop) {
         }
 
 
-        let fliPadding = prop.paddingLeft + prop.paddingTop*2 + prop.baseLenght;
+        let fliPadding = prop.paddingLeft + prop.radio + prop.baseLenght;
 
         if(prop.numberFlags > 0){
             fliPadding = fliPadding - prop.flipperPadding;
@@ -237,7 +237,8 @@ function addLinesToSvg(container, prop) {
 
 function addPoligonToSvg(container, prop){
     const width = 40;
-    const base = prop.paddingLeft + prop.paddingTop*2 + 70;
+    const radio = 30;
+    const base = prop.paddingLeft + radio + 75;
     const points = `${base},${prop.paddingTop},
                     ${base + width},${prop.paddingTop},
                     ${base + width}, ${prop.paddingTop + width}`;
@@ -254,7 +255,7 @@ function addPoligonToSvg(container, prop){
       .style("fill", d => d.stroke)
       .style("stroke-width", d => d.strokeWidth)
       .attr("transform", d => {
-          return `rotate(${d.wdir} 35 35)`;
+          return `rotate(${d.wdir} 0 0)`;
       });
 
       function makePolygon(points, properties, color = "#555555") {
@@ -269,9 +270,8 @@ function addPoligonToSvg(container, prop){
 
 //Add circles
 function addCircles(svgContainer, prop){
-    const y = 30;
     const circleData = createCircleData(prop.paddingLeft, prop.paddingTop, [
-        { "cx": 0, "cy": y, "r": 30, "fill": "none" }
+        { "cx": 0, "cy": 0, "r": 30, "fill": "none" }
     ]);
 
     svgContainer.selectAll("circle")
@@ -288,8 +288,8 @@ function addCircles(svgContainer, prop){
     function createCircleData(paddingLeft = 0, paddingTop = 0, circleData){
       	return circleData.map(c => {
         	return {
-              "cx": c.cx + paddingTop || 0,
-              "cy": c.cy + paddingLeft || 0,
+              "cx": c.cx + paddingLeft || 0,
+              "cy": c.cy + paddingTop || 0,
               "r": c.r || 0,
               "fill": c.fill || "none",
               "stroke": c.stroke || "#555555",
