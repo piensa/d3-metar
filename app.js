@@ -57,7 +57,10 @@ function barbs(stations, barbGroup, projection, priority = 2, path) {
         .selectAll("wind-barbs")
         .data(stations.filter(f => f.properties.prior <= priority)).enter()
         .append("g")
-        .attr("class", d =>  `barb wspd-${d.properties.wspd}`)
+        .attr("class", "barb")
+        .attr("data-temp",  d =>  d.properties.temp)
+        .attr("data-dewp",  d =>  d.properties.dewp)
+        .attr("data-slp",  d =>  d.properties.slp)
         .attr("transform", d => {
             return `translate(${projection(d.geometry.coordinates)}) scale(0.2)`;
         })
