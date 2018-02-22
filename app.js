@@ -64,14 +64,56 @@ function barbs(stations, barbGroup, projection, priority = 2, path) {
         .attr("transform", d => {
             return `translate(${projection(d.geometry.coordinates)}) scale(0.2)`;
         })
-        .append("g").attr("class", "wrapper");
+        .append("g").attr("class", "wrapper")
+        .on("mouseenter", function(d){
+            barbGroup.selectAll("circle").on("mouseenter", () => {
+                handleMouseOver(d, this, barbGroup, projection);
+            });
+            barbGroup.selectAll("path").on("mouseenter", () => {
+                handleMouseOver(d, this, barbGroup, projection);
+            });
+        })
+        .on("mouseleave", function (d) {
+            handleMouseOut(d, barbGroup);
+        })
 
     renderWindBarbs(Group, { paddingLeft: 0, paddingTop: 0 });
 
 }
 
-function renderWindBarbs(container, prop) {
+function handleMouseOver(d, node, group, projection) {
+        setTooltip(-120, -40, "temp", d, node, group, projection);
+        setTooltip(-120, 90, "dewp", d, node, group, projection);
+        setTooltip(30, -40, "slp", d, node, group, projection);
+}
 
+function setTooltip(x = 0, y = 0, type = "", data, node, group, projection) {
+
+    const scale = d3.select(node).attr("transform") || "scale(1)";
+    const barbGroup = group
+        .append("g").attr("class", "barb-tooltip")
+        .data([data])
+        .attr("transform", d => {
+            return `translate(${projection(d.geometry.coordinates)}) scale(0.2)`;
+        })
+        .append("g").attr("class", "wrapper")
+        .attr("transform", scale);
+
+    let value = Math.round(data.properties[type]) || "";
+    value = type === "slp" && value > 1000 ? value.toString().slice(1) : value;
+    barbGroup
+        .append("text")
+        .text(value)
+        .attr("font-family", "sans-serif")
+        .attr("font-size", "60px")
+        .attr("y", y).attr("x", x);
+}
+
+function handleMouseOut(d, group) {
+    group.selectAll(".barb-tooltip").remove();
+}
+
+function renderWindBarbs(container, prop) {
     addCircles(container, prop);
 
     addPoligonToSvg(container, prop);
