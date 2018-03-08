@@ -82,9 +82,9 @@ function barbs(stations, barbGroup, projection, priority = 2, path) {
 }
 
 function handleMouseOver(d, node, group, projection) {
-        setTooltip(-120, -40, "temp", d, node, group, projection);
-        setTooltip(-120, 90, "dewp", d, node, group, projection);
-        setTooltip(30, -40, "slp", d, node, group, projection);
+        setTooltip(-125, -45, "temp", d, node, group, projection);
+        setTooltip(-125, 95, "dewp", d, node, group, projection);
+        setTooltip(35, -45, "slp", d, node, group, projection);
 }
 
 function setTooltip(x = 0, y = 0, type = "", data, node, group, projection) {
@@ -105,7 +105,8 @@ function setTooltip(x = 0, y = 0, type = "", data, node, group, projection) {
         .append("text")
         .text(value)
         .attr("font-family", "sans-serif")
-        .attr("font-size", "60px")
+        .attr("font-size", "65px")
+        .attr("font-weight", "bold")
         .attr("y", y).attr("x", x);
 }
 
