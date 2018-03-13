@@ -1,14 +1,14 @@
 {
   "name": "d3-metar",
-  "version": "0.0.34",
+  "version": "0.0.35",
   "main": "dist/publish.js",
   "unpkg": "dist/publish.js",
   "scripts": {
-    "build": "webpack",
-    "build-rollup": "rollup -c",
+    "build-w": "webpack",
+    "build": "rollup -c",
     "serve": "webpack-dev-server --open",
     "dev": "webpack -d --watch",
-    "prepublish": "npm run build-rollup"
+    "prepublish": "npm run build"
   },
   "dependencies": {
     "d3": "^4.13.0"
