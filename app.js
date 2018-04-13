@@ -64,18 +64,19 @@ function barbs(stations, barbGroup, projection, priority = 2, path) {
         .attr("transform", d => {
             return `translate(${projection(d.geometry.coordinates)}) scale(0.2)`;
         })
-        .append("g").attr("class", "wrapper")
-        .on("mouseenter", function(d){
-            barbGroup.selectAll("circle").on("mouseenter", () => {
-                handleMouseOver(d, this, barbGroup, projection);
-            });
-            barbGroup.selectAll("path").on("mouseenter", () => {
-                handleMouseOver(d, this, barbGroup, projection);
-            });
-        })
-        .on("mouseleave", function (d) {
+        .append("g").attr("class", "wrapper");
+
+    Group.on("mouseenter", function(d){
+        barbGroup.selectAll("circle").on("mouseenter", () => {
+            handleMouseOver(d, this, barbGroup, projection);
+        });
+        barbGroup.selectAll("path").on("mouseenter", () => {
+            handleMouseOver(d, this, barbGroup, projection);
+        });
+    })
+    .on("mouseleave", function (d) {
             handleMouseOut(d, barbGroup);
-        })
+    })
 
     renderWindBarbs(Group, { paddingLeft: 0, paddingTop: 0 });
 
@@ -155,9 +156,9 @@ function renderCloud(container, prop){
             .append("path")
             .attr("d", d => d.d)
             .attr("transform", d => d.trans)
-            .attr("stroke", "#555555")
+            .attr("stroke", "#777")
             .style("stroke-width", 6)
-            .style("fill", "#555555")
+            .style("fill", "#777")
             .style("stroke-linecap", "round");
 
     function cloudreportToSvg(cover, cloudData) {
@@ -270,7 +271,7 @@ function addLinesToSvg(container, prop) {
                       "x2": l.x2 || 0,
                       "y1": l.y1 || 0,
                       "y2": l.y2 || 0,
-                      "stroke": l.stroke || "#555555",
+                      "stroke": l.stroke || "#777",
                       "strokeWidth": l.strokeWidth || 6,
                       "wdir": prop.wdir
 
@@ -304,7 +305,7 @@ function addPoligonToSvg(container, prop){
           return `rotate(${d.wdir} 0 0)`;
       });
 
-      function makePolygon(points, properties, color = "#555555") {
+      function makePolygon(points, properties, color = "#777") {
           return properties.wspd >= 50 ? [{
               points: points,
               stroke: color,
@@ -338,7 +339,7 @@ function addCircles(svgContainer, prop){
               "cy": c.cy + paddingTop || 0,
               "r": c.r || 0,
               "fill": c.fill || "none",
-              "stroke": c.stroke || "#555555",
+              "stroke": c.stroke || "#777",
               "strokeWidth": c.strokeWidth || 6
             }
         });
