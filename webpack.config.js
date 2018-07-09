@@ -2,14 +2,19 @@ const path = require('path');
 
 module.exports = {
     devtool: 'source-map',
-    entry: './render.js',
+    entry: ['babel-polyfill', 'whatwg-fetch', './render.js'],
     output: {
         filename: 'bundle.js',
-        path: path.resolve(__dirname, 'dist')
+        path: path.resolve(__dirname, 'dist'),
+        libraryTarget: "umd"
     },
     module: {
         rules: [
-            { test: /\.js$/, exclude: /node_modules/ }
+            {
+                test: /\.js$/,
+                exclude: /node_modules/,
+                loader: "babel-loader"
+            }
         ]
     }
 };
