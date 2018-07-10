@@ -1,6 +1,6 @@
 {
   "name": "d3-metar",
-  "version": "0.1.1",
+  "version": "0.1.7",
   "main": "dist/bundle.js",
   "unpkg": "dist/publish.js",
   "scripts": {
@@ -8,12 +8,10 @@
     "build-c": "rollup -c",
     "serve": "webpack-dev-server --open",
     "dev": "webpack -d --watch",
-    "prepublish": "npm run build-w && npm run build-w"
+    "prepublish": "npm run build-w && npm run build-c"
   },
   "dependencies": {
-    "babel-polyfill": "^6.26.0",
-    "d3": "^4.13.0",
-    "whatwg-fetch": "^2.0.4"
+    "d3": "^4.13.0"
   },
   "devDependencies": {
     "babel-core": "^6.26.3",

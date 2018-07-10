@@ -2,7 +2,7 @@ const path = require('path');
 
 module.exports = {
     devtool: 'source-map',
-    entry: ['babel-polyfill', 'whatwg-fetch', './render.js'],
+    entry: ['./render.js'],
     output: {
         filename: 'bundle.js',
         path: path.resolve(__dirname, 'dist'),

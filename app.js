@@ -1,12 +1,10 @@
 import * as d3 from "d3";
 
-const metar = {
+export default {
     barbs: barbs,
     stations: getStations,
     test: test
 };
-
-export { metar }
 
 function test(barbGroup){
     const stations = [{
